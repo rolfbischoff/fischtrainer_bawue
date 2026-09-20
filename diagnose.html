@@ -1,0 +1,975 @@
+<!DOCTYPE html> <html lang="de"> <head> <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0">
+
+<meta name="theme-color" content="#1565c0">
+
+<link rel="manifest" href="manifest.json">
+
+<title>PWA-Diagnose</title>
+
+<style>
+    * {
+        box-sizing: border-box;
+    }
+
+    body {
+        margin: 0;
+        padding: 20px;
+        background: #f2f4f7;
+        color: #202124;
+        font-family: Arial, Helvetica, sans-serif;
+        line-height: 1.5;
+    }
+
+    main {
+        max-width: 700px;
+        margin: 0 auto;
+    }
+
+    h1 {
+        color: #1565c0;
+    }
+
+    .karte {
+        background: white;
+        border-radius: 12px;
+        padding: 18px;
+        margin-bottom: 15px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    .pruefung {
+        padding: 10px 12px;
+        margin: 7px 0;
+        border-radius: 7px;
+        word-break: break-word;
+    }
+
+    .ok {
+        background: #e8f5e9;
+        color: #1b5e20;
+    }
+
+    .fehler {
+        background: #ffebee;
+        color: #b71c1c;
+    }
+
+    .warnung {
+        background: #fff8e1;
+        color: #795548;
+    }
+
+    .info {
+        background: #e3f2fd;
+        color: #0d47a1;
+    }
+
+    .symbol {
+        display: inline-block;
+        width: 25px;
+        font-weight: bold;
+    }
+
+    code {
+        word-break: break-all;
+    }
+
+    button {
+        width: 100%;
+        padding: 13px;
+        border: none;
+        border-radius: 8px;
+        background: #1565c0;
+        color: white;
+        font-size: 1rem;
+        cursor: pointer;
+    }
+
+    button:hover {
+        background: #0d47a1;
+    }
+
+    .klein {
+        color: #666;
+        font-size: 0.9rem;
+    }
+
+    pre {
+        white-space: pre-wrap;
+        word-break: break-word;
+        background: #f5f5f5;
+        padding: 12px;
+        border-radius: 6px;
+        overflow-x: auto;
+    }
+</style>
+
+</head> <body> <main>
+<div class="karte">
+    <h1>PWA-Diagnose</h1>
+
+    <p>
+        Diese Seite prüft, ob die Multiple-Choice-App
+        die technischen Voraussetzungen für eine
+        installierbare PWA erfüllt.
+    </p>
+
+    <p class="klein">
+        Seite:
+        <code id="aktuelleUrl"></code>
+    </p>
+</div>
+
+<div class="karte">
+
+    <h2>Grundvoraussetzungen</h2>
+
+    <div id="httpsPruefung"></div>
+    <div id="serviceWorkerSupport"></div>
+    <div id="manifestLink"></div>
+
+</div>
+
+<div class="karte">
+
+    <h2>Manifest</h2>
+
+    <div id="manifestStatus">
+        Manifest wird geprüft …
+    </div>
+
+    <div id="manifestDetails"></div>
+
+</div>
+
+<div class="karte">
+
+    <h2>Icons</h2>
+
+    <div id="icon192"></div>
+    <div id="icon512"></div>
+
+</div>
+
+<div class="karte">
+
+    <h2>Service Worker</h2>
+
+    <div id="swStatus">
+        Service Worker wird geprüft …
+    </div>
+
+    <div id="swDetails"></div>
+
+</div>
+
+<div class="karte">
+
+    <h2>Browser</h2>
+
+    <div id="browserInfo"></div>
+
+</div>
+
+<div class="karte">
+
+    <h2>Zusammenfassung</h2>
+
+    <div id="zusammenfassung">
+        Prüfung läuft …
+    </div>
+
+    <button onclick="location.reload()">
+        Erneut prüfen
+    </button>
+
+</div>
+
+</main> <script>
+"use strict";
+
+/* ============================================================
+ZÄHLER
+============================================================ */
+
+let ok = 0;
+let fehler = 0;
+let warnungen = 0;
+
+/* ============================================================
+HILFSFUNKTIONEN
+============================================================ */
+
+function element(id) {
+return document.getElementById(id);
+}
+
+function ausgabe(
+containerId,
+status,
+titel,
+text = ""
+) {
+
+const container = element(containerId);
+
+const div = document.createElement("div");
+
+div.className =
+    "pruefung " + status;
+
+let symbol = "ℹ";
+
+if (status === "ok") {
+    symbol = "✓";
+    ok++;
+}
+
+if (status === "fehler") {
+    symbol = "✗";
+    fehler++;
+}
+
+if (status === "warnung") {
+    symbol = "!";
+    warnungen++;
+}
+
+div.innerHTML =
+    `<span class="symbol">${symbol}</span>` +
+    `<strong>${escapeHtml(titel)}</strong>` +
+    (text
+        ? `<br><span>${escapeHtml(text)}</span>`
+        : "");
+
+container.appendChild(div);
+
+}
+
+function escapeHtml(text) {
+
+return String(text)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+
+}
+
+/* ============================================================
+URL
+============================================================ */
+
+element("aktuelleUrl").textContent =
+window.location.href;
+
+/* ============================================================
+HTTPS
+============================================================ */
+
+if (window.location.protocol === "https:") {
+
+ausgabe(
+    "httpsPruefung",
+    "ok",
+    "HTTPS aktiv",
+    "Die Seite wird über HTTPS ausgeliefert."
+);
+
+} else if (
+window.location.hostname === "localhost" ||
+window.location.hostname === "127.0.0.1"
+) {
+
+ausgabe(
+    "httpsPruefung",
+    "warnung",
+    "Lokaler Test",
+    "localhost ist für Entwicklungszwecke zulässig."
+);
+
+} else {
+
+ausgabe(
+    "httpsPruefung",
+    "fehler",
+    "Kein HTTPS",
+    "Die Seite wird nicht über HTTPS ausgeliefert."
+);
+
+}
+
+/* ============================================================
+SERVICE-WORKER-SUPPORT
+============================================================ */
+
+if ("serviceWorker" in navigator) {
+
+ausgabe(
+    "serviceWorkerSupport",
+    "ok",
+    "Service Worker unterstützt",
+    "Der Browser stellt die Service-Worker-API bereit."
+);
+
+} else {
+
+ausgabe(
+    "serviceWorkerSupport",
+    "fehler",
+    "Service Worker nicht unterstützt",
+    "Der Browser unterstützt keine Service Worker."
+);
+
+}
+
+/* ============================================================
+MANIFEST LINK
+============================================================ */
+
+const manifestLinkElement =
+document.querySelector('link[rel="manifest"]');
+
+if (manifestLinkElement) {
+
+ausgabe(
+    "manifestLink",
+    "ok",
+    "Manifest verknüpft",
+    manifestLinkElement.href
+);
+
+} else {
+
+ausgabe(
+    "manifestLink",
+    "fehler",
+    "Manifest nicht verknüpft",
+    "In der HTML-Datei wurde kein Manifest-Link gefunden."
+);
+
+}
+
+/* ============================================================
+MANIFEST LADEN
+============================================================ */
+
+async function pruefeManifest() {
+
+try {
+
+    const response =
+        await fetch(
+            "manifest.json",
+            {
+                cache: "no-store"
+            }
+        );
+
+    if (!response.ok) {
+
+        ausgabe(
+            "manifestStatus",
+            "fehler",
+            "Manifest nicht erreichbar",
+            `HTTP-Status: ${response.status}`
+        );
+
+        return null;
+    }
+
+    ausgabe(
+        "manifestStatus",
+        "ok",
+        "manifest.json erreichbar",
+        `HTTP-Status: ${response.status}`
+    );
+
+    const text =
+        await response.text();
+
+    let manifest;
+
+    try {
+
+        manifest = JSON.parse(text);
+
+    } catch (error) {
+
+        ausgabe(
+            "manifestStatus",
+            "fehler",
+            "Manifest enthält ungültiges JSON",
+            error.message
+        );
+
+        return null;
+    }
+
+    ausgabe(
+        "manifestStatus",
+        "ok",
+        "Manifest ist gültiges JSON"
+    );
+
+    /* Name */
+
+    if (manifest.name) {
+
+        ausgabe(
+            "manifestDetails",
+            "ok",
+            "name vorhanden",
+            manifest.name
+        );
+
+    } else {
+
+        ausgabe(
+            "manifestDetails",
+            "fehler",
+            "name fehlt"
+        );
+    }
+
+    /* Short name */
+
+    if (manifest.short_name) {
+
+        ausgabe(
+            "manifestDetails",
+            "ok",
+            "short_name vorhanden",
+            manifest.short_name
+        );
+
+    } else {
+
+        ausgabe(
+            "manifestDetails",
+            "warnung",
+            "short_name fehlt"
+        );
+    }
+
+    /* Start URL */
+
+    if (manifest.start_url) {
+
+        const startUrl =
+            new URL(
+                manifest.start_url,
+                window.location.href
+            );
+
+        ausgabe(
+            "manifestDetails",
+            "ok",
+            "start_url vorhanden",
+            startUrl.href
+        );
+
+    } else {
+
+        ausgabe(
+            "manifestDetails",
+            "fehler",
+            "start_url fehlt"
+        );
+    }
+
+    /* Scope */
+
+    if (manifest.scope) {
+
+        const scopeUrl =
+            new URL(
+                manifest.scope,
+                window.location.href
+            );
+
+        ausgabe(
+            "manifestDetails",
+            "ok",
+            "scope vorhanden",
+            scopeUrl.href
+        );
+
+    } else {
+
+        ausgabe(
+            "manifestDetails",
+            "warnung",
+            "scope fehlt",
+            "Der Browser kann den Scope dann aus start_url ableiten."
+        );
+    }
+
+    /* Display */
+
+    if (manifest.display) {
+
+        ausgabe(
+            "manifestDetails",
+            "ok",
+            "display vorhanden",
+            manifest.display
+        );
+
+    } else {
+
+        ausgabe(
+            "manifestDetails",
+            "warnung",
+            "display fehlt"
+        );
+    }
+
+    /* Icons */
+
+    if (
+        Array.isArray(manifest.icons) &&
+        manifest.icons.length > 0
+    ) {
+
+        ausgabe(
+            "manifestDetails",
+            "ok",
+            "Icons im Manifest vorhanden",
+            `${manifest.icons.length} Icon-Einträge`
+        );
+
+    } else {
+
+        ausgabe(
+            "manifestDetails",
+            "fehler",
+            "Keine Icons im Manifest"
+        );
+    }
+
+    /* Manifest komplett anzeigen */
+
+    const pre =
+        document.createElement("pre");
+
+    pre.textContent =
+        JSON.stringify(
+            manifest,
+            null,
+            2
+        );
+
+    element("manifestDetails")
+        .appendChild(pre);
+
+    return manifest;
+
+} catch (error) {
+
+    ausgabe(
+        "manifestStatus",
+        "fehler",
+        "Manifest konnte nicht geladen werden",
+        error.message
+    );
+
+    return null;
+}
+
+}
+
+/* ============================================================
+ICON PRÜFEN
+============================================================ */
+
+async function pruefeIcon(
+containerId,
+dateiname,
+erwarteteGroesse
+) {
+
+try {
+
+    const response =
+        await fetch(
+            dateiname,
+            {
+                method: "GET",
+                cache: "no-store"
+            }
+        );
+
+    if (!response.ok) {
+
+        ausgabe(
+            containerId,
+            "fehler",
+            `${dateiname} nicht erreichbar`,
+            `HTTP-Status: ${response.status}`
+        );
+
+        return;
+    }
+
+    const blob =
+        await response.blob();
+
+    if (!blob.type.startsWith("image/")) {
+
+        ausgabe(
+            containerId,
+            "fehler",
+            `${dateiname} ist kein Bild`,
+            `Gemeldeter MIME-Typ: ${blob.type}`
+        );
+
+        return;
+    }
+
+    const url =
+        URL.createObjectURL(blob);
+
+    const bild =
+        new Image();
+
+    bild.onload = () => {
+
+        URL.revokeObjectURL(url);
+
+        if (
+            bild.width === erwarteteGroesse &&
+            bild.height === erwarteteGroesse
+        ) {
+
+            ausgabe(
+                containerId,
+                "ok",
+                `${dateiname} korrekt`,
+                `${bild.width} × ${bild.height} Pixel, ${blob.type}`
+            );
+
+        } else {
+
+            ausgabe(
+                containerId,
+                "warnung",
+                `${dateiname} erreichbar, aber Größe prüfen`,
+                `${bild.width} × ${bild.height} Pixel; erwartet ${erwarteteGroesse} × ${erwarteteGroesse}`
+            );
+        }
+    };
+
+    bild.onerror = () => {
+
+        URL.revokeObjectURL(url);
+
+        ausgabe(
+            containerId,
+            "fehler",
+            `${dateiname} ist kein gültiges Bild`
+        );
+    };
+
+    bild.src = url;
+
+} catch (error) {
+
+    ausgabe(
+        containerId,
+        "fehler",
+        `${dateiname} konnte nicht geprüft werden`,
+        error.message
+    );
+}
+
+}
+
+/* ============================================================
+SERVICE WORKER PRÜFEN
+============================================================ */
+
+async function pruefeServiceWorker() {
+
+if (!("serviceWorker" in navigator)) {
+    return;
+}
+
+try {
+
+    /*
+     * Wir warten zunächst kurz darauf,
+     * dass index.html bzw. die App den
+     * Service Worker registriert.
+     */
+
+    let registration = null;
+
+    for (let i = 0; i < 10; i++) {
+
+        registration =
+            await navigator.serviceWorker
+                .getRegistration();
+
+        if (registration) {
+            break;
+        }
+
+        await new Promise(
+            resolve => setTimeout(resolve, 500)
+        );
+    }
+
+    if (!registration) {
+
+        ausgabe(
+            "swStatus",
+            "fehler",
+            "Kein Service Worker registriert",
+            "navigator.serviceWorker.getRegistration() liefert keine Registrierung."
+        );
+
+        ausgabe(
+            "swDetails",
+            "info",
+            "Wahrscheinliche Ursache",
+            "Prüfe, ob index.html service-worker.js registriert."
+        );
+
+        return;
+    }
+
+    ausgabe(
+        "swStatus",
+        "ok",
+        "Service Worker registriert",
+        registration.scope
+    );
+
+    if (registration.active) {
+
+        ausgabe(
+            "swDetails",
+            "ok",
+            "Service Worker aktiv",
+            registration.active.scriptURL
+        );
+
+    } else if (registration.installing) {
+
+        ausgabe(
+            "swDetails",
+            "warnung",
+            "Service Worker wird gerade installiert",
+            registration.installing.scriptURL
+        );
+
+    } else if (registration.waiting) {
+
+        ausgabe(
+            "swDetails",
+            "warnung",
+            "Service Worker wartet auf Aktivierung",
+            registration.waiting.scriptURL
+        );
+    }
+
+    if (registration.scope) {
+
+        const aktuelleSeite =
+            new URL(
+                window.location.href
+            );
+
+        const scope =
+            new URL(
+                registration.scope
+            );
+
+        if (
+            aktuelleSeite.href.startsWith(
+                scope.href
+            )
+        ) {
+
+            ausgabe(
+                "swDetails",
+                "ok",
+                "Aktuelle Seite liegt im Service-Worker-Scope",
+                scope.href
+            );
+
+        } else {
+
+            ausgabe(
+                "swDetails",
+                "fehler",
+                "Aktuelle Seite liegt außerhalb des Service-Worker-Scope",
+                scope.href
+            );
+        }
+    }
+
+} catch (error) {
+
+    ausgabe(
+        "swStatus",
+        "fehler",
+        "Service Worker konnte nicht geprüft werden",
+        error.message
+    );
+}
+
+}
+
+/* ============================================================
+BROWSER-INFORMATIONEN
+============================================================ */
+
+function zeigeBrowserInfo() {
+
+const infos = [
+    ["Browser", navigator.userAgent],
+    ["Online", navigator.onLine ? "Ja" : "Nein"],
+    [
+        "Service Worker",
+        "serviceWorker" in navigator
+            ? "unterstützt"
+            : "nicht unterstützt"
+    ],
+    [
+        "Manifest-Link",
+        manifestLinkElement
+            ? manifestLinkElement.href
+            : "nicht vorhanden"
+    ],
+    [
+        "Protokoll",
+        window.location.protocol
+    ],
+    [
+        "Hostname",
+        window.location.hostname
+    ],
+    [
+        "URL",
+        window.location.href
+    ]
+];
+
+infos.forEach(([name, wert]) => {
+
+    const div =
+        document.createElement("div");
+
+    div.className = "pruefung info";
+
+    div.innerHTML =
+        `<strong>${escapeHtml(name)}:</strong><br>` +
+        `<code>${escapeHtml(wert)}</code>`;
+
+    element("browserInfo")
+        .appendChild(div);
+});
+
+}
+
+/* ============================================================
+ZUSAMMENFASSUNG
+============================================================ */
+
+function zeigeZusammenfassung() {
+
+/*
+ * Diese Funktion wird bewusst mit etwas Verzögerung
+ * aufgerufen, damit die asynchronen Prüfungen
+ * Gelegenheit hatten, Ergebnisse einzutragen.
+ */
+
+setTimeout(() => {
+
+    let html = "";
+
+    if (fehler === 0) {
+
+        html += `
+            <div class="pruefung ok">
+                <span class="symbol">✓</span>
+                <strong>
+                    Keine offensichtlichen technischen Fehler gefunden.
+                </strong>
+            </div>
+        `;
+
+    } else {
+
+        html += `
+            <div class="pruefung fehler">
+                <span class="symbol">✗</span>
+                <strong>
+                    ${fehler} Prüfung(en) mit Fehler.
+                </strong>
+            </div>
+        `;
+    }
+
+    if (warnungen > 0) {
+
+        html += `
+            <div class="pruefung warnung">
+                <span class="symbol">!</span>
+                ${warnungen} Warnung(en).
+            </div>
+        `;
+    }
+
+    html += `
+        <div class="pruefung info">
+            <strong>Ergebnis:</strong>
+            ${ok} OK,
+            ${fehler} Fehler,
+            ${warnungen} Warnungen
+        </div>
+    `;
+
+    element("zusammenfassung").innerHTML =
+        html;
+
+}, 2500);
+
+}
+
+/* ============================================================
+START
+============================================================ */
+
+async function starteDiagnose() {
+
+zeigeBrowserInfo();
+
+await pruefeManifest();
+
+await pruefeIcon(
+    "icon192",
+    "icon-192.png",
+    192
+);
+
+await pruefeIcon(
+    "icon512",
+    "icon-512.png",
+    512
+);
+
+await pruefeServiceWorker();
+
+zeigeZusammenfassung();
+
+}
+
+starteDiagnose();
+
+</script> </body> </html>
