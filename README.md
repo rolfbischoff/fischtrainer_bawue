@@ -35,9 +35,9 @@ Die Anwendung erkennt dabei auch Fragen mit nur einer richtigen Antwort.
 
 ## Fragenkatalog
 Der Fragenkatalog wird in der Datei
-
+```
  fragenkatalog.xml
-
+```
 gespeichert.
 
 Die XML-Datei enthält für jede Frage:
@@ -50,6 +50,7 @@ Die XML-Datei enthält für jede Frage:
 
 Beispiel:
 
+```
 <frage id="4" rubrik="1. Allgemeine Fischkunde">
     <text>Welche Fischarten gehören zu den Schmelzschuppern?</text>
 
@@ -61,6 +62,7 @@ Beispiel:
 
     <loesung>a,c</loesung>
 </frage>
+```
 
 Mehrere richtige Antworten werden durch Kommas getrennt angegeben.
 
@@ -84,6 +86,7 @@ Der Fischtrainer ist als **Progressive Web App (PWA)** aufgebaut.
 
 Dazu gehören:
 
+```
 index.html
 manifest.json
 service-worker.js
@@ -92,6 +95,7 @@ style.css
 fragenkatalog.xml
 icon-192.png
 icon-512.png
+```
 
 Das Web App Manifest stellt unter anderem Name, Icons und das Verhalten der Anwendung beim Start bereit.
 
@@ -114,6 +118,8 @@ Der Fragenkatalog wird beim Laden der Anwendung ebenfalls zwischengespeichert.
 Damit kann der Trainer anschließend auch ohne aktive Internetverbindung verwendet werden.
 
 ## Projektstruktur
+
+```
 fischtrainer_bawue/
 │
 ├── index.html
@@ -127,6 +133,7 @@ fischtrainer_bawue/
 ├── icon-512.png
 │
 └── diagnose.html
+```
 
 ## index.html
 Die eigentliche Benutzeroberfläche des Trainers.
