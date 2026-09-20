@@ -1,0 +1,100 @@
+<!DOCTYPE html> <html lang="de"> <head> <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#1565c0">
+<meta name="description" content="Multiple-Choice-Fragentrainer">
+
+<title>Multiple-Choice-Trainer zur staatlichen Fischerprüfung in Baden-Württemberg</title>
+
+<link rel="stylesheet" href="style.css">
+<link rel="manifest" href="manifest.json">
+
+</head> <body> <header class="app-header"> <h1>Multiple-Choice-Trainer zur staatlichen Fischerprüfung in Baden-Württemberg</h1> <div id="rubrikAnzeige"></div> </header> <main>
+<!-- Ladeanzeige -->
+<section id="ladebereich" class="karte">
+    <div class="spinner"></div>
+    <p>Fragenkatalog wird geladen …</p>
+</section>
+
+<!-- Fehlermeldung -->
+<section id="fehlerbereich" class="karte versteckt">
+    <h2>Fehler</h2>
+    <p id="fehlertext"></p>
+</section>
+
+<!-- Quiz -->
+<section id="quizbereich" class="versteckt">
+
+    <div class="statuszeile">
+        <span id="frageNummer"></span>
+        <span id="fortschritt"></span>
+    </div>
+
+    <div class="fortschrittsbalken">
+        <div id="fortschrittsbalkenInnen"></div>
+    </div>
+
+    <article class="karte">
+
+        <div class="rubrik" id="rubrik"></div>
+
+        <h2 id="frageText"></h2>
+
+        <p id="mehrfachHinweis" class="hinweis versteckt">
+            Mehrere Antworten sind möglich.
+        </p>
+
+        <div id="antworten"></div>
+
+        <button id="pruefenButton" class="hauptbutton">
+            Lösung prüfen
+        </button>
+
+        <div id="ergebnis" class="versteckt"></div>
+
+        <button id="naechsteButton" class="hauptbutton versteckt">
+            Nächste Frage
+        </button>
+
+    </article>
+
+</section>
+
+<!-- Auswertung -->
+<section id="auswertung" class="versteckt">
+
+    <div class="karte">
+        <h2>Auswertung</h2>
+
+        <div id="gesamtErgebnis"></div>
+
+        <h3>Auswertung nach Rubrik</h3>
+        <div id="rubrikErgebnis"></div>
+
+        <h3>Auswertung nach Frage</h3>
+        <div class="tabelle-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Frage</th>
+                        <th>OK</th>
+                        <th>NOK</th>
+                    </tr>
+                </thead>
+                <tbody id="fragenErgebnis"></tbody>
+            </table>
+        </div>
+
+        <div class="buttongruppe">
+            <button id="neuerDurchgangButton" class="hauptbutton">
+                Neuer Durchgang
+            </button>
+
+            <button id="zuruecksetzenButton" class="sekundaerbutton">
+                Lernerfolg zurücksetzen
+            </button>
+        </div>
+    </div>
+
+</section>
+
+</main> <footer> <button id="auswertungButton" class="kleinerButton"> Auswertung </button> </footer> <script src="app.js"></script> </body> </html>
