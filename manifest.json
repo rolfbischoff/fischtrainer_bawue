@@ -1,6 +1,6 @@
 {
-    "name": "Multiple-Choice-Trainer",
-    "short_name": "MC-Trainer",
+    "name": "Fisch-Trainer",
+    "short_name": "Fisch-Trainer",
     "description": "Offline Multiple-Choice-Fragentrainer",
     "lang": "de-DE",
     "start_url": "./",
