@@ -1,141 +1,26 @@
 {
-"name": "Multiple-Choice-Trainer",
-"short_name": "MC-Trainer",
-"description": "Offline Multiple-Choice-Fragentrainer",
-"lang": "de-DE",
-"start_url": "./",
-"scope": "./",
-"display": "standalone",
-"orientation": "portrait",
-"theme_color": "#1565c0",
-"background_color": "#f2f4f7",
-"icons": [
-{
-"src": "icon-192.png",
-"sizes": "192x192",
-"type": "image/png",
-"purpose": "any"
-},
-{
-"src": "icon-512.png",
-"sizes": "512x512",
-"type": "image/png",
-"purpose": "any"
+    "name": "Multiple-Choice-Trainer",
+    "short_name": "MC-Trainer",
+    "description": "Offline Multiple-Choice-Fragentrainer",
+    "lang": "de-DE",
+    "start_url": "./",
+    "scope": "./",
+    "display": "standalone",
+    "orientation": "portrait",
+    "theme_color": "#1565c0",
+    "background_color": "#f2f4f7",
+    "icons": [
+        {
+            "src": "icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any"
+        }
+    ]
 }
-]
-}
-
-5. service-worker.js
-service-worker.js
-
-
-"use strict";
-
-const CACHE_NAME = "mc-trainer-v1";
-
-const DATEIEN = [
-"./",
-"./index.html",
-"./style.css",
-"./app.js",
-"./manifest.json",
-"./fragenkatalog.xml",
-"./icon-192.png",
-"./icon-512.png"
-];
-
-/* Installation */
-
-self.addEventListener("install", event => {
-
-event.waitUntil(
-
-    caches.open(CACHE_NAME)
-        .then(cache => cache.addAll(DATEIEN))
-        .then(() => self.skipWaiting())
-
-);
-
-});
-
-/* Aktivierung */
-
-self.addEventListener("activate", event => {
-
-event.waitUntil(
-
-    caches.keys()
-        .then(keys => {
-
-            return Promise.all(
-
-                keys
-                    .filter(key => key !== CACHE_NAME)
-                    .map(key => caches.delete(key))
-
-            );
-
-        })
-        .then(() => self.clients.claim())
-
-);
-
-});
-
-/* Dateien aus dem Cache bzw. Netzwerk */
-
-self.addEventListener("fetch", event => {
-
-/*
- * Für die Anwendung verwenden wir:
- *
- * Cache zuerst.
- * Wenn die Datei nicht im Cache ist,
- * wird sie aus dem Netzwerk geladen.
- *
- * Dadurch funktioniert die App nach
- * dem ersten erfolgreichen Laden offline.
- */
-
-event.respondWith(
-
-    caches.match(event.request)
-        .then(cachedResponse => {
-
-            if (cachedResponse) {
-                return cachedResponse;
-            }
-
-            return fetch(event.request)
-                .then(response => {
-
-                    /*
-                     * Erfolgreiche Antworten
-                     * ebenfalls speichern.
-                     */
-
-                    if (
-                        response &&
-                        response.status === 200 &&
-                        response.type === "basic"
-                    ) {
-
-                        const kopie =
-                            response.clone();
-
-                        caches.open(CACHE_NAME)
-                            .then(cache => {
-                                cache.put(
-                                    event.request,
-                                    kopie
-                                );
-                            });
-                    }
-
-                    return response;
-                });
-        })
-
-);
-
-});
