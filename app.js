@@ -859,9 +859,6 @@ try {
 
     ladeLernerfolg();
 
-    document.getElementById("appVersion").textContent =
-        "Version " + APP_VERSION;
-
     document
         .getElementById("ladebereich")
         .classList.add("versteckt");
