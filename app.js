@@ -63,6 +63,48 @@ return kopie;
 
 }
 
+
+function waehleFrage(nochOffeneFragen) {
+
+    const gewichte = [];
+
+    for (const frage of nochOffeneFragen) {
+
+        const anzahlRichtig = frage.richtig;
+        const anzahlFalsch = frage.falsch;
+
+        const anzahlVersuche =
+            5 * anzahlRichtig + anzahlFalsch;
+
+        // Selten abgefragte Fragen bevorzugen.
+        // Falsche Antworten erhöhen das Auswahlgewicht.
+        const gewicht =
+            3 / Math.sqrt(1 + anzahlVersuche)
+            + Math.pow(1 + anzahlFalsch, 2)
+            / (1 + anzahlRichtig);
+
+        gewichte.push(gewicht);
+    }
+
+    // Gewichtete Zufallsauswahl
+    const gesamtGewicht =
+        gewichte.reduce((summe, gewicht) => summe + gewicht, 0);
+
+    let zufallswert = Math.random() * gesamtGewicht;
+
+    for (let i = 0; i < nochOffeneFragen.length; i++) {
+
+        zufallswert -= gewichte[i];
+
+        if (zufallswert <= 0) {
+            return nochOffeneFragen[i];
+        }
+    }
+
+    return nochOffeneFragen[nochOffeneFragen.length - 1];
+}
+
+
 /* ============================================================
 XML LADEN
 ============================================================ */
@@ -269,7 +311,8 @@ FRAGENPOOL
 
 function erstelleFragenpool() {
 
-fragenPool = mische(fragen);
+// Alle Fragen stehen für den neuen Durchgang zur Verfügung.
+    fragenPool = [...fragen];
 
 }
 
@@ -277,20 +320,29 @@ fragenPool = mische(fragen);
 NÄCHSTE FRAGE
 ============================================================ */
 
+
 function zeigeNaechsteFrage() {
 
-if (fragenPool.length === 0) {
+    if (fragenPool.length === 0) {
 
-    zeigeAuswertung();
-    return;
-}
+        zeigeAuswertung();
+        return;
+    }
 
-aktuelleFrage = fragenPool.pop();
+    // Gewichtete Auswahl aus den noch offenen Fragen
+    aktuelleFrage = waehleFrage(fragenPool);
 
-aktuelleAuswahl = new Set();
-frageBeantwortet = false;
+    // Frage aus dem Pool entfernen.
+    // Sie kann in diesem Durchgang nicht erneut erscheinen.
+    fragenPool.splice(
+        fragenPool.indexOf(aktuelleFrage),
+        1
+    );
 
-renderFrage();
+    aktuelleAuswahl = new Set();
+    frageBeantwortet = false;
+
+    renderFrage();
 
 }
 
