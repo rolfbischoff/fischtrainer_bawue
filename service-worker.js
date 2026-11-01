@@ -1,6 +1,6 @@
 "use strict";
 
-const CACHE_NAME = "mc-trainer-v4";
+const CACHE_NAME = "mc-trainer-v5";
 
 const DATEIEN = [
 "./",
