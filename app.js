@@ -9,7 +9,6 @@ Fragen werden aus fragenkatalog.xml geladen.
 Der Lernerfolg wird im localStorage des Browsers gespeichert.
 */
 
-const APP_VERSION = "1.1.0";
 const XML_DATEI = "fragenkatalog.xml";
 const SPEICHER_SCHLUESSEL = "fischtrainer_lernerfolg_v1";
 
