@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+
+<meta name="theme-color" content="#1565c0">
+
+<title>Auswahlwahrscheinlichkeiten – Fischtrainer</title>
+
+<link rel="stylesheet" href="style.css">
+
+</head>
+
+<body>
+
+<header class="app-header">
+
+    <h1>Multiple-Choice-Trainer zur staatlichen Fischerprüfung in Baden-Württemberg</h1>
+
+    <div>Auswahlwahrscheinlichkeiten</div>
+
+    <div>Gewichtete Fragenauswahl</div>
+
+</header>
+
+<main>
+
+    <section id="ladebereich" class="karte">
+
+        <div class="spinner"></div>
+
+        <p>Fragenkatalog wird geladen …</p>
+
+    </section>
+
+    <section id="fehlerbereich" class="karte versteckt">
+
+        <h2>Fehler</h2>
+
+        <p id="fehlertext"></p>
+
+    </section>
+
+    <section id="auswertung" class="versteckt">
+
+        <div class="karte">
+
+            <h2>Auswahlwahrscheinlichkeiten</h2>
+
+            <div id="gesamtErgebnis"></div>
+
+            <h3>Auswertung nach Rubrik</h3>
+
+            <div id="rubrikErgebnis"></div>
+
+            <h3>Auswertung nach Frage</h3>
+
+            <div class="tabelle-container">
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+                            <th>ID</th>
+                            <th>Frage</th>
+                            <th>OK</th>
+                            <th>NOK</th>
+                            <th>Gewicht</th>
+                            <th>Wahrscheinlichkeit</th>
+                        </tr>
+
+                    </thead>
+
+                    <tbody id="fragenErgebnis"></tbody>
+
+                </table>
+
+            </div>
+
+            <div class="buttongruppe">
+
+                <button
+                    id="aktualisierenButton"
+                    class="hauptbutton">
+                    Daten aktualisieren
+                </button>
+
+            </div>
+
+        </div>
+
+    </section>
+
+</main>
+
+<footer>
+
+    <button
+        class="kleinerButton"
+        onclick="window.location.href='index.html'">
+        Zurück zum Trainer
+    </button>
+
+</footer>
+
+
+<!-- Zuerst die originale App laden -->
+
+<script src="app.js"></script>
+
+<script>
+
+/* ============================================================
+   WARTEN, BIS DIE APP GELADEN IST
+============================================================ */
+
+function warteAufDaten() {
+
+    if (
+        !window.fischtrainerDaten ||
+        !window.fischtrainerDaten.getFragen().length
+    ) {
+
+        setTimeout(warteAufDaten, 100);
+
+        return;
+    }
+
+    zeigeAuswertung();
+
+}
+
+
+/* ============================================================
+   AUSWERTUNG
+============================================================ */
+
+function zeigeAuswertung() {
+
+    const fragen =
+        window.fischtrainerDaten.getFragen();
+
+    let gesamtGewicht = 0;
+
+    const rubriken = {};
+
+    // Gewicht jeder Frage berechnen
+
+    fragen.forEach(frage => {
+
+        frage.gewicht =
+            window.fischtrainerDaten.berechneGewicht(frage);
+
+        gesamtGewicht += frage.gewicht;
+
+    });
+
+    // Wahrscheinlichkeiten berechnen
+
+    fragen.forEach(frage => {
+
+        frage.wahrscheinlichkeit =
+            100 * frage.gewicht / gesamtGewicht;
+
+    });
+
+
+    // Gesamtergebnis
+
+    const summeWahrscheinlichkeiten =
+        fragen.reduce(
+            (summe, frage) =>
+                summe + frage.wahrscheinlichkeit,
+            0
+        );
+
+    document.getElementById("gesamtErgebnis")
+        .innerHTML = `
+            <div class="rubrik-zeile">
+                <div>Anzahl Fragen: <strong>${fragen.length}</strong></div>
+                <div>Gesamtgewicht: <strong>${gesamtGewicht.toFixed(4)}</strong></div>
+                <div class="erfolgsquote">
+                    Summe Wahrscheinlichkeiten:
+                    ${summeWahrscheinlichkeiten.toFixed(4)} %
+                </div>
+            </div>
+        `;
+
+
+    // Rubrik-Auswertung
+
+    fragen.forEach(frage => {
+
+        if (!rubriken[frage.rubrik]) {
+
+            rubriken[frage.rubrik] = {
+                richtig: 0,
+                falsch: 0,
+                gewicht: 0
+            };
+
+        }
+
+        rubriken[frage.rubrik].richtig += frage.richtig;
+        rubriken[frage.rubrik].falsch += frage.falsch;
+        rubriken[frage.rubrik].gewicht += frage.gewicht;
+
+    });
+
+    const rubrikContainer =
+        document.getElementById("rubrikErgebnis");
+
+    rubrikContainer.innerHTML = "";
+
+    Object.entries(rubriken).forEach(([rubrik, werte]) => {
+
+        const anteil =
+            100 * werte.gewicht / gesamtGewicht;
+
+        const element =
+            document.createElement("div");
+
+        element.className = "rubrik-zeile";
+
+        const name = document.createElement("div");
+        name.className = "rubrik-name";
+        name.textContent = rubrik;
+
+        const ergebnis = document.createElement("div");
+        ergebnis.textContent =
+            `Richtig: ${werte.richtig}   Falsch: ${werte.falsch}`;
+
+        const wahrscheinlichkeit = document.createElement("div");
+        wahrscheinlichkeit.className = "erfolgsquote";
+        wahrscheinlichkeit.textContent =
+            `Auswahlwahrscheinlichkeit: ${anteil.toFixed(3)} %`;
+
+        element.append(name, ergebnis, wahrscheinlichkeit);
+
+        rubrikContainer.appendChild(element);
+
+    });
+
+
+    // Fragen-Tabelle
+
+    const container =
+        document.getElementById("fragenErgebnis");
+
+    container.innerHTML = "";
+
+    const sortierteFragen =
+        [...fragen].sort(
+            (a, b) =>
+                b.wahrscheinlichkeit - a.wahrscheinlichkeit
+        );
+
+    sortierteFragen.forEach(frage => {
+
+        const zeile = document.createElement("tr");
+
+        const werte = [
+            frage.id,
+            frage.text,
+            frage.richtig,
+            frage.falsch,
+            frage.gewicht.toFixed(4),
+            frage.wahrscheinlichkeit.toFixed(4) + " %"
+        ];
+
+        werte.forEach((wert, index) => {
+
+            const zelle = document.createElement("td");
+
+            zelle.textContent = wert;
+
+            if (index >= 4) {
+                zelle.className = "erfolgsquote";
+            }
+
+            zeile.appendChild(zelle);
+
+        });
+
+        container.appendChild(zeile);
+
+    });
+
+    document.getElementById("ladebereich")
+        .classList.add("versteckt");
+
+    document.getElementById("auswertung")
+        .classList.remove("versteckt");
+
+}
+
+
+/* ============================================================
+   AKTUALISIEREN
+============================================================ */
+
+document.getElementById("aktualisierenButton")
+    .addEventListener("click", () => {
+
+        window.location.reload();
+
+    });
+
+
+/* ============================================================
+   ÄNDERUNGEN AUS ANDEREN TABS ERKENNEN
+============================================================ */
+
+window.addEventListener("storage", event => {
+
+    if (event.key === "fischtrainer_lernerfolg_v1") {
+
+        window.location.reload();
+
+    }
+
+});
+
+
+/* ============================================================
+   FEHLERBEHANDLUNG
+============================================================ */
+
+window.addEventListener("error", event => {
+
+    console.error(event.error);
+
+});
+
+warteAufDaten();
+
+</script>
+
+</body>
+</html>
