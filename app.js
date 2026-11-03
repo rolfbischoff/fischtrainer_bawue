@@ -9,7 +9,7 @@ Fragen werden aus fragenkatalog.xml geladen.
 Der Lernerfolg wird im localStorage des Browsers gespeichert.
 */
 
-const APP_VERSION = "1.1";
+const APP_VERSION = "1.2";
 const XML_DATEI = "fragenkatalog.xml";
 const SPEICHER_SCHLUESSEL = "fischtrainer_lernerfolg_v1";
 
@@ -809,43 +809,32 @@ document
 }
 
 /* ============================================================
-EVENTS
+   EVENTS – NUR AUF DER HAUPTSEITE
 ============================================================ */
 
-document
-.getElementById("pruefenButton")
-.addEventListener(
-"click",
-pruefeAntwort
-);
+if (document.getElementById("quizbereich")) {
 
-document
-.getElementById("naechsteButton")
-.addEventListener(
-"click",
-zeigeNaechsteFrage
-);
+    document
+        .getElementById("pruefenButton")
+        .addEventListener("click", pruefeAntwort);
 
-document
-.getElementById("auswertungButton")
-.addEventListener(
-"click",
-zeigeAuswertung
-);
+    document
+        .getElementById("naechsteButton")
+        .addEventListener("click", zeigeNaechsteFrage);
 
-document
-.getElementById("neuerDurchgangButton")
-.addEventListener(
-"click",
-neuerDurchgang
-);
+    document
+        .getElementById("auswertungButton")
+        .addEventListener("click", zeigeAuswertung);
 
-document
-.getElementById("zuruecksetzenButton")
-.addEventListener(
-"click",
-zuruecksetzen
-);
+    document
+        .getElementById("neuerDurchgangButton")
+        .addEventListener("click", neuerDurchgang);
+
+    document
+        .getElementById("zuruecksetzenButton")
+        .addEventListener("click", zuruecksetzen);
+
+}
 
 /* ============================================================
    SCHNITTSTELLE FÜR WAHRSCHEINLICHKEITEN.HTML
@@ -877,33 +866,41 @@ START
 
 async function starteApp() {
 
-try {
+    try {
 
-    fragen = await ladeFragen();
+        fragen = await ladeFragen();
 
-    ladeLernerfolg();
+        ladeLernerfolg();
 
-    document.getElementById("appVersion").textContent =
-        "Version " + APP_VERSION;
+        // Auf der Statistikseite nur Daten bereitstellen.
+        if (!document.getElementById("quizbereich")) {
+            return;
+        }
 
-    document
-        .getElementById("ladebereich")
-        .classList.add("versteckt");
+        // Ab hier normale Initialisierung des Trainers.
 
-    if (fragen.length === 0) {
-        throw new Error(
-            "Der Fragenkatalog enthält keine gültigen Fragen."
-        );
+        document.getElementById("appVersion").textContent =
+            "Version " + APP_VERSION;
+
+        document
+            .getElementById("ladebereich")
+            .classList.add("versteckt");
+
+        if (fragen.length === 0) {
+            throw new Error(
+                "Der Fragenkatalog enthält keine gültigen Fragen."
+            );
+        }
+
+        erstelleFragenpool();
+
+        zeigeNaechsteFrage();
+
+    } catch (fehler) {
+
+        zeigeFehler(fehler);
+
     }
-
-    erstelleFragenpool();
-
-    zeigeNaechsteFrage();
-
-} catch (fehler) {
-
-    zeigeFehler(fehler);
-}
 
 }
 
