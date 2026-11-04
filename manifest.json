@@ -1,12 +1,16 @@
 {
-    "name": "Fisch-Trainer",
-    "short_name": "Fisch-Trainer",
-    "description": "Offline Multiple-Choice-Fragentrainer",
+    "id": "./",
+    "name": "Fischtrainer Baden-Württemberg",
+    "short_name": "Fischtrainer",
+    "description": "Kostenloser Multiple-Choice-Trainer zur Vorbereitung auf die staatliche Fischerprüfung in Baden-Württemberg. Mit lernabhängiger Fragenauswahl, persönlicher Lernstatistik, Datensicherung und Offline-Nutzung.",
     "lang": "de-DE",
     "start_url": "./",
     "scope": "./",
     "display": "standalone",
-    "orientation": "portrait",
+    "orientation": "any",
+    "categories": [
+        "education"
+    ],
     "theme_color": "#1565c0",
     "background_color": "#f2f4f7",
     "icons": [
