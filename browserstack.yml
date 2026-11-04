@@ -1,0 +1,49 @@
+userName: ${BROWSERSTACK_USERNAME}
+accessKey: ${BROWSERSTACK_ACCESS_KEY}
+
+projectName: Fischtrainer_BW
+buildName: Fischtrainer_Automated_Tests
+
+browserstackLocal: true
+
+parallelsPerPlatform: 1
+
+debug: true
+networkLogs: true
+consoleLogs: errors
+
+platforms:
+
+  - os: Windows
+    osVersion: 11
+    browserName: chrome
+    browserVersion: latest
+    playwrightConfigOptions:
+      name: Windows_Chrome
+      use:
+        baseURL: http://bs-local.com:4173
+
+  - os: OS X
+    osVersion: Sonoma
+    browserName: playwright-webkit
+    browserVersion: latest
+    playwrightConfigOptions:
+      name: macOS_Safari
+      use:
+        baseURL: http://bs-local.com:4173
+
+  - deviceName: Samsung Galaxy S23
+    osVersion: 13.0
+    browserName: chrome
+    playwrightConfigOptions:
+      name: Android_Chrome
+      use:
+        baseURL: http://bs-local.com:4173
+
+  - deviceName: iPhone 15
+    osVersion: 17
+    browserName: safari
+    playwrightConfigOptions:
+      name: iOS_Safari
+      use:
+        baseURL: http://bs-local.com:4173

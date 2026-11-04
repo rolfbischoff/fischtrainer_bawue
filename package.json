@@ -1,0 +1,21 @@
+{
+  "name": "fischtrainer-bawue-tests",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Automatisierte Tests für den Fischtrainer Baden-Württemberg",
+  "scripts": {
+    "test": "playwright test",
+    "test:local": "playwright test --project=chromium --project=firefox --project=webkit",
+    "test:chromium": "playwright test --project=chromium",
+    "test:xml": "playwright test tests/fragenkatalog.spec.js",
+    "test:pwa": "playwright test tests/pwa.spec.js",
+    "test:cloud": "browserstack-node-sdk playwright test --config=playwright.config.js --grep-invert @offline",
+    "test:report": "playwright show-report"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.56.0",
+    "browserstack-node-sdk": "^1.0.0",
+    "fast-xml-parser": "^5.2.5",
+    "http-server": "^14.1.1"
+  }
+}

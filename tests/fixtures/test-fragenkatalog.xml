@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fragenkatalog>
+
+    <frage id="TEST001" rubrik="Test Einzelantwort">
+
+        <text>Welche Antwort ist richtig?</text>
+
+        <antworten>
+            <antwort id="a">Falsche Antwort</antwort>
+            <antwort id="b">Richtige Antwort</antwort>
+            <antwort id="c">Weitere falsche Antwort</antwort>
+        </antworten>
+
+        <loesung>b</loesung>
+
+    </frage>
+
+    <frage id="TEST002" rubrik="Test Mehrfachantwort">
+
+        <text>Welche Antworten sind richtig?</text>
+
+        <antworten>
+            <antwort id="a">Richtige Antwort A</antwort>
+            <antwort id="b">Falsche Antwort B</antwort>
+            <antwort id="c">Richtige Antwort C</antwort>
+        </antworten>
+
+        <loesung>a,c</loesung>
+
+    </frage>
+
+</fragenkatalog>
