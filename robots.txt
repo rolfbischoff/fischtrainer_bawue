@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://rolfbischoff.github.io/fischtrainer_bawue/sitemap.xml
