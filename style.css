@@ -13,7 +13,7 @@
 --text: #202124;
 }
 
-{
+* {
 box-sizing: border-box;
 }
 
@@ -44,12 +44,6 @@ font-size: 1.25rem;
 #rubrikAnzeige {
 margin-top: 4px;
 font-size: 1.0rem;
-}
-
-#appVersion {
-margin-top: 4px;
-font-size: 0.6rem;
-opacity: 0.8;
 }
 
 main {
@@ -319,24 +313,6 @@ transform: rotate(360deg);
 }
 }
 
-footer {
-position: fixed;
-bottom: 0;
-left: 0;
-right: 0;
-
-background: white;
-border-top: 1px solid #ddd;
-
-text-align: center;
-
-padding:
-    6px
-    0
-    calc(6px + env(safe-area-inset-bottom));
-
-}
-
 /* Hilfsklasse */
 
 .versteckt {
@@ -359,5 +335,184 @@ main {
     font-size: 1.4rem;
 }
 
+}
+
+
+/* ============================================================
+   SEO-Beschreibung
+============================================================ */
+
+.seo-beschreibung {
+    background: white;
+    border-radius: 12px;
+    padding: 16px 18px;
+    margin-bottom: 14px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+.seo-beschreibung h2 {
+    font-size: 1.15rem;
+    color: var(--blau-dunkel);
+    margin-top: 0;
+}
+
+.seo-beschreibung p {
+    font-size: 0.92rem;
+    margin-bottom: 8px;
+}
+
+/* ============================================================
+   Projektbeschreibung
+============================================================ */
+
+.projektinfo-titel {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.projektinfo-titel h2 {
+    font-size: 1.15rem;
+    color: var(--blau-dunkel);
+    margin-bottom: 0;
+    margin-top: 0;
+}
+
+#appVersion {
+    font-size: 1.15rem;
+    color: var(--blau-dunkel);
+    font-weight: bold;
+}
+
+#projektinfo .karte {
+    padding: 16px 18px;
+}
+
+#projektinfo h3 {
+    font-size: 1.15rem;
+    color: var(--blau);
+    margin-top: 0;
+}
+
+#projektinfo p,
+#projektinfo li {
+    line-height: 1.65;
+}
+
+#projektinfo li {
+    margin-bottom: 6px;
+}
+
+#projektinfo a {
+    color: var(--blau);
+    overflow-wrap: anywhere;
+}
+
+/* ============================================================
+   Permanente Navigation
+============================================================ */
+
+.app-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+
+    padding: 8px 10px
+        calc(8px + env(safe-area-inset-bottom));
+
+    background: white;
+    border-top: 1px solid #ddd;
+    box-shadow: 0 -2px 8px rgba(0,0,0,0.06);
+
+    z-index: 100;
+}
+
+.nav-button {
+    width: 100%;
+    min-width: 0;
+    padding: 12px 4px;
+
+    border: none;
+    border-radius: 9px;
+
+    background: var(--blau);
+    color: white;
+
+    font-size: clamp(0.72rem, 2.8vw, 0.95rem);
+    font-weight: bold;
+
+    cursor: pointer;
+}
+
+.nav-button:active {
+    background: var(--blau-dunkel);
+}
+
+.nav-button:disabled {
+    opacity: 1;
+    background: var(--blau);
+    color: white;
+    cursor: default;
+}
+
+main {
+    padding-bottom: 100px;
+}
+
+.status {
+    padding: 15px;
+    margin: 15px 0;
+    border-radius: 8px;
+    background: #f1f3f5;
+    overflow-wrap: anywhere;
+}
+
+.status.erfolg {
+    background: #d1e7dd;
+    color: #0f5132;
+}
+
+.status.fehler {
+    background: #f8d7da;
+    color: #842029;
+}
+
+.info {
+    background: var(--blau-hell);
+    color: #17436b;
+    padding: 14px;
+    border-radius: 8px;
+    margin: 15px 0;
+    line-height: 1.5;
+}
+
+.warnung {
+    background: #fff3cd;
+    color: #664d03;
+    padding: 14px;
+    border-radius: 8px;
+    margin: 15px 0;
+    line-height: 1.5;
+}
+
+.datei {
+    display: block;
+    width: 100%;
+    margin: 15px 0;
+    padding: 12px;
+    box-sizing: border-box;
+    border: 1px solid #aaa;
+    border-radius: 6px;
+}
+
+.kennzahl {
+    font-size: 1.05rem;
+    margin: 10px 0;
 }
 
