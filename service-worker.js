@@ -1,12 +1,13 @@
 "use strict";
 
-const CACHE_NAME = "mc-trainer-v1.2";
+const CACHE_NAME = "mc-trainer-v1.3";
 
 const DATEIEN = [
 "./",
 "./index.html",
 "./style.css",
 "./app.js",
+"./datensicherung.js",    
 "./manifest.json",
 "./icon-192.png",
 "./icon-512.png"
