@@ -1,5 +1,5 @@
 # 🎣 Fischtrainer Baden-Württemberg
-Ein browserbasierter Multiple-Choice-Fragentrainer zur Vorbereitung auf die staatliche Fischerprüfung in Baden-Württemberg.
+Ein browserbasierter Multiple-Choice-Fragentrainer zur Vorbereitung auf die staatliche Fischerprüfung in Baden-Württemberg verfügbar über GitHub Pages unter https://rolfbischoff.github.io/fischtrainer_bawue/.
 Ziel des Projekts ist es, die Vorbereitung auf die Fischerprüfung durch eine übersichtliche, benutzerfreundliche und individuell an den Lernfortschritt angepasste Fragenauswahl zu unterstützen.
 Die Anwendung läuft als **Progressive Web App (PWA)** direkt im Browser und kann insbesondere auf Android-Geräten auf dem Startbildschirm installiert werden.
 
@@ -11,6 +11,7 @@ Die Anwendung läuft als **Progressive Web App (PWA)** direkt im Browser und kan
 - ✅ Automatische Überprüfung der Antworten
 - ❌ Anzeige der richtigen Lösung bei einer falschen Antwort
 - 📊 Speicherung des individuellen Lernerfolgs auf dem verwendeten Gerät
+- 📲 Export und Import des individuellen Lernerfolgs als Datei zum Übertragen auf andere Geräte
 - 📈 Auswertung der Ergebnisse insgesamt und nach Rubrik
 - 📋 Detaillierte Statistik für einzelne Fragen
 - 📉 Anzeige der Auswahlgewichte und Auswahlwahrscheinlichkeiten
