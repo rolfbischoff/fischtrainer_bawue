@@ -1,0 +1,116 @@
+name: Fischtrainer Softwaretests
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+
+  local-tests:
+
+    name: Lokale Browser- und Funktionstests
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Repository laden
+        uses: actions/checkout@v6
+
+      - name: Node.js installieren
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Abhängigkeiten installieren
+        run: npm ci
+
+      - name: Browser installieren
+        run: npx playwright install --with-deps
+
+      - name: Tests ausführen
+        run: npm test
+
+      - name: Testberichte speichern
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: playwright-testberichte
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 14
+
+  cloud-tests:
+
+    name: Echte Geräte mit BrowserStack
+
+    runs-on: ubuntu-latest
+
+    if: >
+      github.event_name != 'pull_request' ||
+      github.event.pull_request.head.repo.full_name == github.repository
+
+    steps:
+
+      - name: Repository laden
+        uses: actions/checkout@v6
+
+      - name: Node.js installieren
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Abhängigkeiten installieren
+        run: npm ci
+
+      - name: BrowserStack Zugangsdaten prüfen
+        if: >
+          env.BROWSERSTACK_USERNAME == '' ||
+          env.BROWSERSTACK_ACCESS_KEY == ''
+        run: |
+          echo "BrowserStack Secrets fehlen."
+          echo "Cloud-Tests werden übersprungen."
+          exit 1
+        env:
+          BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
+          BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
+
+      - name: BrowserStack Variablen setzen
+        uses: browserstack/github-actions/setup-env@master
+        with:
+          username: ${{ secrets.BROWSERSTACK_USERNAME }}
+          access-key: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
+          project-name: Fischtrainer_BW
+          build-name: BUILD_INFO
+
+      - name: Abhängigkeiten und Server starten
+        run: |
+          npx http-server . -p 4173 -c-1 --silent &
+          npx wait-on http://127.0.0.1:4173/
+
+      - name: BrowserStack Tests starten
+        run: npm run test:cloud
+        env:
+          BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
+          BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
+
+      - name: Testberichte speichern
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: browserstack-testberichte
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 14
