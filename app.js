@@ -9,7 +9,7 @@ Fragen werden aus fragenkatalog.xml geladen.
 Der Lernerfolg wird im localStorage des Browsers gespeichert.
 */
 
-const APP_VERSION = "1.2";
+const APP_VERSION = "1.3";
 const XML_DATEI = "fragenkatalog.xml";
 const SPEICHER_SCHLUESSEL = "fischtrainer_lernerfolg_v1";
 
@@ -18,6 +18,9 @@ let fragenPool = [];
 let aktuelleFrage = null;
 let aktuelleAuswahl = new Set();
 let frageBeantwortet = false;
+let aktuelleAnsicht = "quiz";
+let ansichtVorProjektinfo = "quiz";
+let ansichtVorDatensicherung = "quiz";
 
 /* ============================================================
 HILFSFUNKTIONEN
@@ -353,6 +356,12 @@ FRAGE DARSTELLEN
 
 function renderFrage() {
 
+document.getElementById("datensicherung")
+    .classList.add("versteckt");
+
+document.getElementById("projektinfo")
+    .classList.add("versteckt");
+
 document
     .getElementById("quizbereich")
     .classList.remove("versteckt");
@@ -453,6 +462,9 @@ document
 document
     .getElementById("naechsteButton")
     .classList.add("versteckt");
+
+aktuelleAnsicht = "quiz";
+aktualisiereNavigation();
 
 }
 
@@ -612,6 +624,12 @@ AUSWERTUNG
 
 function zeigeAuswertung() {
 
+document.getElementById("datensicherung")
+    .classList.add("versteckt");
+
+document.getElementById("projektinfo")
+    .classList.add("versteckt");
+
 document
     .getElementById("quizbereich")
     .classList.add("versteckt");
@@ -661,11 +679,14 @@ document
     .getElementById("gesamtErgebnis")
     .innerHTML = `
         <div class="rubrik-zeile">
-            <div>Richtig: <strong>${gesamtRichtig}</strong></div>
-            <div>Falsch: <strong>${gesamtFalsch}</strong></div>
-            <div class="erfolgsquote">
-                Erfolgsquote:
+            <div>Richtig: <strong>${gesamtRichtig}</strong>
+            &nbsp;
+            Falsch: <strong>${gesamtFalsch}</strong>
+            &nbsp;
+            <span class="erfolgsquote">
+                Quote:
                 ${gesamtProzent.toFixed(2)} %
+            </span>
             </div>
         </div>
     `;
@@ -697,12 +718,13 @@ Object.entries(rubriken)
             </div>
             <div>
                 Richtig: ${werte.richtig}
-                &nbsp;&nbsp;
+                &nbsp;
                 Falsch: ${werte.falsch}
-            </div>
-            <div class="erfolgsquote">
-                Erfolgsquote:
-                ${prozent.toFixed(2)} %
+                &nbsp;
+                <span class="erfolgsquote">
+                    Quote:
+                    ${prozent.toFixed(2)} %
+                </span>
             </div>
         `;
 
@@ -728,6 +750,9 @@ fragen.forEach(frage => {
 
     fragenContainer.appendChild(zeile);
 });
+
+aktuelleAnsicht = "auswertung";
+aktualisiereNavigation();
 
 }
 
@@ -809,6 +834,132 @@ document
 }
 
 /* ============================================================
+   NAVIGATION
+============================================================ */
+
+function aktualisiereNavigation() {
+
+    const navigationButton =
+        document.getElementById("navigationButton");
+
+    const datensicherungButton =
+        document.getElementById("datensicherungButton");
+
+    const projektinfoButton =
+        document.getElementById("projektinfoButton");
+
+    if (!navigationButton) return;
+
+    navigationButton.textContent =
+        aktuelleAnsicht === "quiz"
+            ? "Auswertung"
+            : "Quiz";
+
+    datensicherungButton.textContent = "Datensicherung";
+
+    projektinfoButton.textContent = "Projektinfo";
+
+    // Aktuelle Ansicht nicht erneut öffnen
+    projektinfoButton.disabled =
+        aktuelleAnsicht === "projektinfo";
+
+    const seoBeschreibung =
+        document.querySelector(".seo-beschreibung");
+
+    if (seoBeschreibung) {
+        seoBeschreibung.classList.toggle(
+            "versteckt",
+            aktuelleAnsicht === "auswertung" ||
+            aktuelleAnsicht === "datensicherung"
+        );
+    }
+}
+
+function zeigeQuiz() {
+
+    document.getElementById("auswertung")
+        .classList.add("versteckt");
+
+    document.getElementById("datensicherung")
+        .classList.add("versteckt");
+
+    document.getElementById("projektinfo")
+        .classList.add("versteckt");
+
+    document.getElementById("quizbereich")
+        .classList.remove("versteckt");
+
+    // Rubrik der aktuellen Frage wiederherstellen
+    document.getElementById("rubrikAnzeige")
+        .textContent = aktuelleFrage
+            ? aktuelleFrage.rubrik
+            : "";
+
+    aktuelleAnsicht = "quiz";
+
+    aktualisiereNavigation();
+}
+
+function navigiereHauptansicht() {
+
+    if (aktuelleAnsicht === "quiz") {
+        zeigeAuswertung();
+    } else {
+        zeigeQuiz();
+    }
+}
+
+function zeigeProjektinfo() {
+
+    document.getElementById("quizbereich")
+        .classList.add("versteckt");
+
+    document.getElementById("auswertung")
+        .classList.add("versteckt");
+
+    document.getElementById("datensicherung")
+        .classList.add("versteckt");
+
+    document.getElementById("projektinfo")
+        .classList.remove("versteckt");
+
+    document.getElementById("rubrikAnzeige")
+        .textContent = "Über den Fischtrainer";
+
+    aktuelleAnsicht = "projektinfo";
+
+    aktualisiereNavigation();
+}
+
+function zeigeDatensicherung() {
+
+    if (aktuelleAnsicht !== "datensicherung") {
+        ansichtVorDatensicherung = aktuelleAnsicht;
+    }
+
+    document.getElementById("quizbereich")
+        .classList.add("versteckt");
+
+    document.getElementById("auswertung")
+        .classList.add("versteckt");
+
+    document.getElementById("projektinfo")
+        .classList.add("versteckt");
+
+    document.getElementById("datensicherung")
+        .classList.remove("versteckt");
+
+    document.getElementById("rubrikAnzeige")
+        .textContent = "Datensicherung";
+
+    aktuelleAnsicht = "datensicherung";
+
+    aktualisiereNavigation();
+
+    leseSicherungsSpeicher();
+}
+
+/* ============================================================
    EVENTS – NUR AUF DER HAUPTSEITE
 ============================================================ */
 
@@ -823,8 +974,16 @@ if (document.getElementById("quizbereich")) {
         .addEventListener("click", zeigeNaechsteFrage);
 
     document
-        .getElementById("auswertungButton")
-        .addEventListener("click", zeigeAuswertung);
+        .getElementById("navigationButton")
+        .addEventListener("click", navigiereHauptansicht);
+
+    document
+        .getElementById("projektinfoButton")
+        .addEventListener("click", zeigeProjektinfo);
+
+    document
+        .getElementById("datensicherungButton")
+        .addEventListener("click", zeigeDatensicherung);
 
     document
         .getElementById("neuerDurchgangButton")
@@ -834,6 +993,9 @@ if (document.getElementById("quizbereich")) {
         .getElementById("zuruecksetzenButton")
         .addEventListener("click", zuruecksetzen);
 
+    document
+        .getElementById("datensicherungZuruecksetzenButton")
+        .addEventListener("click", zuruecksetzen);
 }
 
 /* ============================================================
