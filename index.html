@@ -1,113 +1,465 @@
-<!DOCTYPE html> <html lang="de"> <head> <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="theme-color" content="#1565c0">
-<meta name="description" content="Multiple-Choice-Fragentrainer">
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 
-<title>Multiple-Choice-Trainer zur staatlichen Fischerprüfung in Baden-Württemberg</title>
+    <meta name="theme-color" content="#1565c0">
 
-<link rel="stylesheet" href="style.css">
-<link rel="manifest" href="manifest.json">
+    <meta name="description"
+          content="Kostenloser Fischtrainer zur Vorbereitung auf die staatliche Fischerprüfung in Baden-Württemberg. Übe Prüfungsfragen im Multiple-Choice-Verfahren, verbessere deinen Lernerfolg und trainiere auch offline.">
 
-</head> <body> <header class="app-header"> <h1>Multiple-Choice-Trainer zur staatlichen Fischerprüfung in Baden-Württemberg</h1> <div id="appVersion"></div> <div id="rubrikAnzeige"></div> </header> <main>
-<!-- Ladeanzeige -->
-<section id="ladebereich" class="karte">
-    <div class="spinner"></div>
-    <p>Fragenkatalog wird geladen …</p>
-</section>
+    <meta name="keywords"
+          content="Fischtrainer, Fischerprüfung, Fischereiprüfung, Baden-Württemberg, Prüfungsfragen, Angeln, Fischereischein, Lerntrainer">
 
-<!-- Fehlermeldung -->
-<section id="fehlerbereich" class="karte versteckt">
-    <h2>Fehler</h2>
-    <p id="fehlertext"></p>
-</section>
+    <meta name="author" content="Rolf Bischoff">
 
-<!-- Quiz -->
-<section id="quizbereich" class="versteckt">
+    <meta property="og:title"
+          content="Fischtrainer Baden-Württemberg">
 
-    <div class="statuszeile">
-        <span id="frageNummer"></span>
-        <span id="fortschritt"></span>
-    </div>
+    <meta property="og:description"
+          content="Kostenloser Online-Trainer zur Vorbereitung auf die staatliche Fischerprüfung in Baden-Württemberg.">
 
-    <div class="fortschrittsbalken">
-        <div id="fortschrittsbalkenInnen"></div>
-    </div>
+    <meta property="og:type" content="website">
 
-    <article class="karte">
+    <meta property="og:url"
+          content="https://rolfbischoff.github.io/fischtrainer_bawue/">
 
-        <div class="rubrik" id="rubrik"></div>
+    <link rel="canonical"
+          href="https://rolfbischoff.github.io/fischtrainer_bawue/">
 
-        <h2 id="frageText"></h2>
+    <title>Fischtrainer Baden-Württemberg – Fischerprüfung online üben</title>
 
-        <p id="mehrfachHinweis" class="hinweis versteckt">
-            Mehrere Antworten sind möglich.
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Fischtrainer Baden-Württemberg",
+      "description": "Kostenloser browserbasierter Multiple-Choice-Trainer zur Vorbereitung auf die staatliche Fischerprüfung in Baden-Württemberg.",
+      "url": "https://rolfbischoff.github.io/fischtrainer_bawue/",
+      "applicationCategory": "EducationalApplication",
+      "operatingSystem": "Webbrowser",
+      "inLanguage": "de",
+      "author": {
+        "@type": "Person",
+        "name": "Rolf Bischoff"
+      },
+      "isAccessibleForFree": true
+    }
+    </script>
+</head>
+
+<body>
+
+<header class="app-header">
+    <h1>Fischtrainer Baden-Württemberg</h1>
+    <div id="rubrikAnzeige"></div>
+</header>
+
+<main>
+
+    <!-- Ladeanzeige -->
+    <section id="ladebereich" class="karte">
+        <div class="spinner"></div>
+        <p>Fragenkatalog wird geladen …</p>
+    </section>
+
+    <!-- Fehlermeldung -->
+    <section id="fehlerbereich" class="karte versteckt">
+        <h2>Fehler</h2>
+        <p id="fehlertext"></p>
+    </section>
+
+    <!-- Quiz -->
+    <section id="quizbereich" class="versteckt">
+
+        <div class="statuszeile">
+            <span id="frageNummer"></span>
+            <span id="fortschritt"></span>
+        </div>
+
+        <div class="fortschrittsbalken">
+            <div id="fortschrittsbalkenInnen"></div>
+        </div>
+
+        <article class="karte">
+
+            <div class="rubrik" id="rubrik"></div>
+
+            <h2 id="frageText"></h2>
+
+            <p id="mehrfachHinweis" class="hinweis versteckt">
+                Mehrere Antworten sind möglich.
+            </p>
+
+            <div id="antworten"></div>
+
+            <button id="pruefenButton" class="hauptbutton">
+                Lösung prüfen
+            </button>
+
+            <div id="ergebnis" class="versteckt"></div>
+
+            <button id="naechsteButton"
+                    class="hauptbutton versteckt">
+                Nächste Frage
+            </button>
+
+        </article>
+
+    </section>
+
+    <!-- SEO-Beschreibung: bereits im HTML vorhanden -->
+    <section class="seo-beschreibung">
+        <h2>Fischerprüfung Baden-Württemberg online üben</h2>
+
+        <p>
+            Mit dem kostenlosen Fischtrainer kannst du dich auf die
+            staatliche Fischerprüfung in Baden-Württemberg vorbereiten.
+            Trainiere mit Multiple-Choice-Fragen aus dem amtlichen
+            Fragenkatalog und überprüfe deinen persönlichen Lernerfolg.
         </p>
 
-        <div id="antworten"></div>
+        <p>
+            Der Trainer berücksichtigt deinen bisherigen Lernfortschritt.
+            Fragen, die du häufig falsch beantwortest, werden bevorzugt
+            erneut ausgewählt. So kannst du gezielt Wissenslücken schließen.
+        </p>
 
-        <button id="pruefenButton" class="hauptbutton">
-            Lösung prüfen
-        </button>
+        <p>
+            Die Anwendung funktioniert auf Smartphones und Computern.
+            Als Progressive Web App (PWA) kann sie installiert und nach
+            dem ersten Laden auch offline verwendet werden.
+        </p>
+    </section>
 
-        <div id="ergebnis" class="versteckt"></div>
+    <!-- Auswertung -->
+    <section id="auswertung" class="versteckt">
 
-        <button id="naechsteButton" class="hauptbutton versteckt">
-            Nächste Frage
-        </button>
+        <div class="karte">
 
-    </article>
+            <div class="buttongruppe">
 
-</section>
+                <button id="neuerDurchgangButton"
+                        class="hauptbutton">
+                    Neuer Durchgang
+                </button>
 
-<!-- Auswertung -->
-<section id="auswertung" class="versteckt">
+                <button id="zuruecksetzenButton"
+                        class="sekundaerbutton">
+                    Lernerfolg zurücksetzen
+                </button>
 
-    <div class="karte">
-        <h2>Auswertung</h2>
+            </div>
 
-        <div id="gesamtErgebnis"></div>
+            <h3>Auswertung gesamt und nach Rubrik</h3>
 
-        <h3>Auswertung nach Rubrik</h3>
-        <div id="rubrikErgebnis"></div>
+            <div id="gesamtErgebnis"></div>
 
-        <h3>Auswertung nach Frage</h3>
-        <div class="tabelle-container">
-            <table>
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Frage</th>
-                        <th>OK</th>
-                        <th>NOK</th>
-                    </tr>
-                </thead>
-                <tbody id="fragenErgebnis"></tbody>
-            </table>
+            <!--Auswertung nach Rubrik-->
+            <div id="rubrikErgebnis"></div>
+
+            <h3>Auswertung nach Frage</h3>
+
+            <div class="tabelle-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Frage</th>
+                            <th>OK</th>
+                            <th>NOK</th>
+                        </tr>
+                    </thead>
+                    <tbody id="fragenErgebnis"></tbody>
+                </table>
+            </div>
+
         </div>
 
-        <div class="buttongruppe">
-            <button id="neuerDurchgangButton" class="hauptbutton">
-                Neuer Durchgang
-            </button>
+    </section>
 
-            <button id="zuruecksetzenButton" class="sekundaerbutton">
+    <!-- DATENSICHERUNG -->
+    <section id="datensicherung" class="versteckt">
+    
+        <article class="karte">
+            <h2>Vorhandene Trainingsdaten</h2>
+    
+            <p>
+                Diese Seite untersucht den gespeicherten
+                Lernerfolg auf diesem Gerät.
+            </p>
+    
+            <div id="status" class="status">
+                Speicher wird untersucht ...
+            </div>
+    
+            <div id="speicherInfo"></div>
+    
+            <button id="neuPruefen"
+                    class="hauptbutton">
+                Speicher erneut prüfen
+            </button>
+        </article>
+    
+        <article class="karte">
+            <h2>Lernerfolg exportieren</h2>
+    
+            <div class="info">
+                Der Export erstellt eine JSON-Datei
+                mit deinen gespeicherten Trainingsdaten.
+                Die Daten auf diesem Gerät bleiben unverändert.
+            </div>
+    
+            <button id="exportButton"
+                    class="hauptbutton">
+                Lernerfolg herunterladen
+            </button>
+        </article>
+    
+        <article class="karte">
+            <h2>Lernerfolg importieren</h2>
+    
+            <div class="warnung">
+                Achtung: Ein Import ersetzt den aktuell
+                verwendeten Lernerfolg.
+    
+                Vorher wird automatisch eine zusätzliche
+                lokale Sicherheitskopie angelegt.
+            </div>
+    
+            <label for="importDatei">
+                Gesicherte JSON-Datei auswählen:
+            </label>
+    
+            <input type="file"
+                   id="importDatei"
+                   class="datei"
+                   accept=".json,application/json">
+    
+            <button id="importButton"
+                    class="hauptbutton">
+                Lernerfolg wiederherstellen
+            </button>
+    
+            <p class="hinweis">
+                Es werden nur Dateien akzeptiert,
+                die zum Datenformat des Fischtrainers passen.
+            </p>
+        </article>
+    
+        <article class="karte">
+        
+            <h2>Lernerfolg zurücksetzen</h2>
+        
+            <div class="warnung">
+                Achtung: Dabei werden sämtliche gespeicherten
+                Lernergebnisse auf diesem Gerät gelöscht.
+                Die Fragenstatistik wird vollständig zurückgesetzt.
+            </div>
+        
+            <button id="datensicherungZuruecksetzenButton"
+                    class="hauptbutton">
                 Lernerfolg zurücksetzen
             </button>
-        </div>
-    </div>
+        
+        </article>
 
-</section>
+        <article class="karte">
+            <h2>Letzte lokale Sicherungen</h2>
+    
+            <p>
+                Hier findest du die automatischen Sicherungen,
+                die vor einem Import erstellt wurden.
+            </p>
+    
+            <div id="backupInfo"></div>
+    
+            <button id="backupButton"
+                    class="hauptbutton">
+                Letzte Sicherung herunterladen
+            </button>
+        </article>
+    
+    </section>
 
-</main> <footer> <button id="auswertungButton" class="kleinerButton"> Auswertung </button> </footer> 
+    <!-- Projektbeschreibung -->
+    <section id="projektinfo" class="versteckt">
+
+        <article class="karte">
+
+            <div class="projektinfo-titel">
+                <h2>Über den Fischtrainer</h2>
+                <span id="appVersion"></span>
+            </div>
+            
+            <p>
+                Der Fischtrainer Baden-Württemberg ist ein kostenloser,
+                browserbasierter Multiple-Choice-Trainer zur Vorbereitung
+                auf die staatliche Fischerprüfung in Baden-Württemberg.
+            </p>
+
+            <p>
+                Ziel ist eine übersichtliche und individuelle Vorbereitung
+                auf die Prüfung. Die Auswahl der Fragen orientiert sich
+                am persönlichen Lernfortschritt.
+            </p>
+
+            <h3>Funktionen</h3>
+
+            <ul>
+                <li>Zufällige, gewichtete Auswahl von Prüfungsfragen</li>
+                <li>Lernabhängige Anpassung der Auswahlwahrscheinlichkeit</li>
+                <li>Fragen mit einer oder mehreren richtigen Antworten</li>
+                <li>Automatische Überprüfung der Antworten</li>
+                <li>Anzeige der richtigen Lösungen</li>
+                <li>Speicherung des persönlichen Lernerfolgs</li>
+                <li>Auswertung insgesamt und nach Themengebiet</li>
+                <li>Detaillierte Statistik für einzelne Fragen</li>
+                <li>Beliebig viele Trainingsdurchgänge</li>
+                <li>Optimierte Bedienung auf Smartphone und Computer</li>
+            </ul>
+
+            <h3>Lernabhängige Fragenauswahl</h3>
+
+            <p>
+                Die Fragen werden nicht mit gleicher Wahrscheinlichkeit
+                ausgewählt. Häufig falsch beantwortete Fragen erhalten
+                ein höheres Auswahlgewicht. Bereits sicher beherrschte
+                Fragen werden tendenziell seltener ausgewählt.
+            </p>
+
+            <p>
+                Auch bisher selten oder noch nicht beantwortete Fragen
+                werden angemessen berücksichtigt. Innerhalb eines
+                Durchgangs erscheint jede Frage höchstens einmal.
+            </p>
+
+            <h3>Auswertung und Datenschutz</h3>
+
+            <p>
+                Der persönliche Lernerfolg wird ausschließlich lokal
+                im Speicher des verwendeten Browsers abgelegt.
+                Es ist keine Registrierung erforderlich.
+            </p>
+
+            <p>
+                Die gespeicherten Daten werden nicht an einen zentralen
+                Server übertragen. Der Lernfortschritt ist daher an
+                den jeweiligen Browser und das verwendete Gerät gebunden.
+            </p>
+
+            <h3>Fragenkatalog und Herkunft</h3>
+
+            <p>
+                Grundlage ist der amtliche Fragenkatalog zur staatlichen
+                Fischerprüfung in Baden-Württemberg, herausgegeben vom
+                Landesfischereiverband Baden-Württemberg e. V.
+            </p>
+
+            <p>
+                Für diesen Trainer wurden die Fragen aufbereitet und
+                um Fragen reduziert, deren Beantwortung eine grafische
+                Darstellung voraussetzt.
+            </p>
+
+            <p>
+                Die Übertragung in das XML-Format erfolgte mithilfe
+                von KI. Trotz sorgfältiger Aufbereitung kann keine
+                Gewähr für die vollständige Richtigkeit und
+                Fehlerfreiheit übernommen werden.
+            </p>
+
+            <p>
+                Im Zweifelsfall ist deshalb immer der Originalfragenkatalog
+                maßgeblich.
+            </p>
+
+            <p>
+                <a href="https://lfvbw.de/angelfischerei-fragenkatalog-zur-fischerpruefung/"
+                   target="_blank"
+                   rel="noopener noreferrer">
+                    Originalfragenkatalog beim Landesfischereiverband BW
+                </a>
+            </p>
+
+            <h3>Progressive Web App und Offline-Nutzung</h3>
+
+            <p>
+                Der Fischtrainer ist als Progressive Web App (PWA)
+                umgesetzt. Auf geeigneten Geräten kann er zum
+                Startbildschirm hinzugefügt und wie eine App verwendet
+                werden.
+            </p>
+
+            <p>
+                Der Service Worker speichert die benötigten Dateien
+                und den Fragenkatalog lokal zwischen. Nach dem ersten
+                erfolgreichen Laden ist dadurch auch eine Nutzung
+                ohne Internetverbindung möglich.
+            </p>
+
+            <h3>Weitere Informationen</h3>
+
+            <p>
+                Der Quellcode und die technische Dokumentation
+                sind öffentlich auf GitHub verfügbar.
+            </p>
+
+            <p>
+                <a href="https://github.com/rolfbischoff/fischtrainer_bawue"
+                   target="_blank"
+                   rel="noopener noreferrer">
+                    Fischtrainer auf GitHub
+                </a>
+            </p>
+
+            <p>
+                <a href="wahrscheinlichkeiten.html">
+                    Auswahlwahrscheinlichkeiten der Fragen anzeigen
+                </a>
+            </p>
+
+        </article>
+
+    </section>
+
+
+</main>
+
+<!-- Permanente Navigation -->
+
+<footer class="app-footer">
+
+    <button id="navigationButton" class="nav-button">
+        Auswertung
+    </button>
+
+    <button id="datensicherungButton" class="nav-button">
+        Datensicherung
+    </button>
+
+    <button id="projektinfoButton" class="nav-button">
+        Projektinfo
+    </button>
+
+</footer>
+
 <script src="app.js"></script>
+<script src="datensicherung.js"></script>
+<script>
+    initialisiereDatensicherung();
+</script>
 
 <script>
 if ("serviceWorker" in navigator) {
     window.addEventListener("load", () => {
         navigator.serviceWorker
             .register("./service-worker.js")
-            .then(() => {
-                console.log("Service Worker registriert.");
-            })
             .catch(error => {
                 console.error(
                     "Service Worker konnte nicht registriert werden:",
