@@ -92,6 +92,10 @@
 
             <h2 id="frageText"></h2>
 
+            <div id="frageBildContainer"
+                 class="frage-bild-container versteckt">
+            </div>
+
             <p id="mehrfachHinweis" class="hinweis versteckt">
                 Mehrere Antworten sind möglich.
             </p>
@@ -285,6 +289,46 @@
             </button>
         </article>
     
+        <article class="karte">
+            <h2>Eigenen Fragenkatalog laden</h2>
+
+            <div class="info">
+                Du kannst einen eigenen Fragenkatalog im XML-Format
+                verwenden. Der Katalog wird lokal auf diesem Gerät
+                gespeichert und bleibt bis zur nächsten Aktualisierung
+                des Fischtrainers erhalten.
+            </div>
+
+            <label for="katalogDatei">
+                Eigene fragenkatalog.xml auswählen:
+            </label>
+
+            <input
+                type="file"
+                id="katalogDatei"
+                class="datei"
+                accept=".xml,text/xml,application/xml">
+
+            <div id="katalogVorschau" class="info versteckt"></div>
+
+            <button
+                id="katalogUebernehmenButton"
+                class="hauptbutton"
+                disabled>
+                Eigenen Fragenkatalog übernehmen
+            </button>
+
+            <div id="katalogStatus" class="status" aria-live="polite">
+                Der Standardfragenkatalog wird verwendet.
+            </div>
+
+            <p class="hinweis">
+                Der ausgewählte Katalog ersetzt den Standardkatalog
+                auf diesem Gerät. Die Datei wird nicht an einen Server
+                übertragen.
+            </p>
+        </article>
+
     </section>
 
     <!-- Projektbeschreibung -->
