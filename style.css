@@ -172,6 +172,26 @@ border-color: var(--gruen);
 background: var(--gruen-hell);
 }
 
+/* Bilddarstellung bei bildgestützten Fragen */
+
+.frage-bild-container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 10px 0 20px;
+}
+
+.frage-bild {
+    display: block;
+    max-width: 100%;
+    max-height: 360px;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    border-radius: 10px;
+}
+
 /* Buttons */
 
 button {
@@ -334,6 +354,16 @@ main {
 #frageText {
     font-size: 1.4rem;
 }
+
+}
+
+/* Kleine Bildschirme */
+
+@media (max-width: 600px) {
+
+    .frage-bild {
+        max-height: 280px;
+    }
 
 }
 
