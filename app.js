@@ -9,9 +9,19 @@ Fragen werden aus fragenkatalog.xml geladen.
 Der Lernerfolg wird im localStorage des Browsers gespeichert.
 */
 
-const APP_VERSION = "1.3";
+const APP_VERSION = "1.4";
 const XML_DATEI = "fragenkatalog.xml";
 const SPEICHER_SCHLUESSEL = "fischtrainer_lernerfolg_v1";
+const USER_KATALOG_CACHE = "mc-trainer-user-catalog";
+
+const USER_KATALOG_DATEI =
+    new URL(
+        "./__user_catalog__/fragenkatalog.xml",
+        document.baseURI
+    ).href;
+
+let eigenerKatalogAktiv = false;
+let vorgemerkterKatalog = null;
 
 let fragen = [];
 let fragenPool = [];
@@ -113,70 +123,66 @@ function waehleFrage(nochOffeneFragen) {
 XML LADEN
 ============================================================ */
 
-async function ladeFragen() {
+function parseFragenXML(xmlText) {
 
-const response = await fetch(XML_DATEI);
+    const parser = new DOMParser();
 
-if (!response.ok) {
-    throw new Error(
-        `Die Datei "${XML_DATEI}" konnte nicht geladen werden.`
+    const xml = parser.parseFromString(
+        xmlText,
+        "application/xml"
     );
-}
 
-const xmlText = await response.text();
+    const parserFehler =
+        xml.querySelector("parsererror");
 
-const parser = new DOMParser();
-const xml = parser.parseFromString(xmlText, "application/xml");
-
-const parserFehler = xml.querySelector("parsererror");
-
-if (parserFehler) {
-    throw new Error(
-        "Die XML-Datei konnte nicht verarbeitet werden."
-    );
-}
-
-const frageElemente = xml.querySelectorAll("frage");
-
-if (frageElemente.length === 0) {
-    throw new Error(
-        "Im Fragenkatalog wurden keine Fragen gefunden."
-    );
-}
-
-const ergebnis = [];
-
-frageElemente.forEach(element => {
-
-    const id = element.getAttribute("id") || "";
-    const rubrik = element.getAttribute("rubrik") || "";
-
-    const textElement = element.querySelector(":scope > text");
-    const antwortenElement =
-        element.querySelector(":scope > antworten");
-    const loesungElement =
-        element.querySelector(":scope > loesung");
-
-    if (!textElement) {
-        console.warn(`Frage ${id} hat keinen Text.`);
-        return;
+    if (parserFehler) {
+        throw new Error(
+            "Die XML-Datei konnte nicht verarbeitet werden."
+        );
     }
 
-    if (!antwortenElement) {
-        console.warn(`Frage ${id} hat keine Antworten.`);
-        return;
+    const frageElemente =
+        xml.querySelectorAll("frage");
+
+    if (frageElemente.length === 0) {
+        throw new Error(
+            "Im Fragenkatalog wurden keine Fragen gefunden."
+        );
     }
 
-    if (!loesungElement) {
-        console.warn(`Frage ${id} hat keine Lösung.`);
-        return;
-    }
+    const ergebnis = [];
+    
+    frageElemente.forEach(element => {    
 
-    const antworten = {};
+        const id = element.getAttribute("id") || "";
+        const rubrik = element.getAttribute("rubrik") || "";
 
-    antwortenElement
-        .querySelectorAll(":scope > antwort")
-        .forEach(antwortElement => {
+        const textElement = element.querySelector(":scope > text");
+        const antwortenElement =
+            element.querySelector(":scope > antworten");
+        const loesungElement =
+            element.querySelector(":scope > loesung");
+
+        if (!textElement) {
+            console.warn(`Frage ${id} hat keinen Text.`);
+            return;
+        }
+
+        if (!antwortenElement) {
+            console.warn(`Frage ${id} hat keine Antworten.`);
+            return;
+        }
+
+        if (!loesungElement) {
+            console.warn(`Frage ${id} hat keine Lösung.`);
+            return;
+        }
+
+        const antworten = {};
+
+        antwortenElement
+            .querySelectorAll(":scope > antwort")
+            .forEach(antwortElement => {
 
             const antwortId =
                 antwortElement.getAttribute("id");
@@ -190,33 +196,83 @@ frageElemente.forEach(element => {
             }
         });
 
-    const loesung =
-        normalisiereLoesung(loesungElement.textContent);
+        const loesung =
+            normalisiereLoesung(loesungElement.textContent);
 
-    if (Object.keys(antworten).length === 0) {
-        console.warn(`Frage ${id} hat keine gültigen Antworten.`);
-        return;
-    }
+        if (Object.keys(antworten).length === 0) {
+            console.warn(`Frage ${id} hat keine gültigen Antworten.`);
+            return;
+        }
 
-    if (loesung.size === 0) {
-        console.warn(`Frage ${id} hat keine Lösung.`);
-        return;
-    }
+        if (loesung.size === 0) {
+            console.warn(`Frage ${id} hat keine Lösung.`);
+            return;
+        }
 
-    ergebnis.push({
+        const imageElement =
+            element.querySelector(":scope > image");
+
+        const image =
+            imageElement
+                ? imageElement.textContent.trim()
+                : "";
+
+        ergebnis.push({
         id,
         rubrik,
         text: textElement.textContent.trim(),
+        image,
         antworten,
         loesung,
 
         richtig: 0,
         falsch: 0
     });
-});
+    });
+    
+    return ergebnis;
+}
 
-return ergebnis;
+async function ladeFragen() {
 
+    // Zuerst prüfen, ob ein eigener Katalog gespeichert ist.
+    if ("caches" in window) {
+
+        const cache =
+            await caches.open(USER_KATALOG_CACHE);
+
+        const gespeicherteDatei =
+            await cache.match(USER_KATALOG_DATEI);
+
+        if (gespeicherteDatei) {
+
+            const xmlText =
+                await gespeicherteDatei.text();
+
+            eigenerKatalogAktiv = true;
+
+            console.info(
+                "Eigener Fragenkatalog wird verwendet."
+            );
+
+            return parseFragenXML(xmlText);
+        }
+    }
+
+    // Andernfalls den Standardkatalog laden.
+    eigenerKatalogAktiv = false;
+
+    const response = await fetch(XML_DATEI);
+
+    if (!response.ok) {
+        throw new Error(
+            `Die Datei "${XML_DATEI}" konnte nicht geladen werden.`
+        );
+    }
+
+    const xmlText = await response.text();
+
+    return parseFragenXML(xmlText);
 }
 
 /* ============================================================
@@ -278,23 +334,50 @@ try {
 
 }
 
+
 function speichereLernerfolg() {
 
-const daten = {};
+    // Bereits gespeicherte Lernwerte übernehmen.
+    let daten = {};
 
-fragen.forEach(frage => {
+    try {
 
-    daten[frage.id] = {
-        rubrik: frage.rubrik,
-        richtig: frage.richtig,
-        falsch: frage.falsch
-    };
-});
+        const gespeichert =
+            localStorage.getItem(SPEICHER_SCHLUESSEL);
 
-localStorage.setItem(
-    SPEICHER_SCHLUESSEL,
-    JSON.stringify(daten)
-);
+        if (gespeichert) {
+            daten = JSON.parse(gespeichert);
+        }
+
+        if (
+            !daten ||
+            typeof daten !== "object" ||
+            Array.isArray(daten)
+        ) {
+            daten = {};
+        }
+
+    } catch (fehler) {
+
+        daten = {};
+
+    }
+
+    // Nur die Fragen des aktiven Katalogs aktualisieren.
+    fragen.forEach(frage => {
+
+        daten[frage.id] = {
+            rubrik: frage.rubrik,
+            richtig: frage.richtig,
+            falsch: frage.falsch
+        };
+
+    });
+
+    localStorage.setItem(
+        SPEICHER_SCHLUESSEL,
+        JSON.stringify(daten)
+    );
 
 }
 
@@ -391,6 +474,63 @@ document.getElementById("rubrikAnzeige").textContent =
 
 document.getElementById("frageText").textContent =
     aktuelleFrage.text;
+
+// Bildbereich zunächst leeren und ausblenden
+const bildContainer =
+    document.getElementById("frageBildContainer");
+
+bildContainer.replaceChildren();
+bildContainer.classList.add("versteckt");
+
+// Nur anzeigen, wenn ein Bildpfad vorhanden ist
+if (aktuelleFrage.image) {
+
+    try {
+
+        const bildUrl = new URL(
+            aktuelleFrage.image,
+            document.baseURI
+        );
+
+        // Nur HTTP- und HTTPS-Adressen zulassen
+        if (
+            bildUrl.protocol !== "https:" &&
+            bildUrl.protocol !== "http:"
+        ) {
+            throw new Error("Ungültiges Bildformat.");
+        }
+
+        const bild = document.createElement("img");
+
+        bild.src = bildUrl.href;
+        bild.alt = `Abbildung zu Frage ${aktuelleFrage.id}`;
+        bild.className = "frage-bild";
+        bild.loading = "eager";
+        bild.referrerPolicy = "no-referrer";
+
+        bild.addEventListener("error", () => {
+
+            bildContainer.replaceChildren();
+            bildContainer.classList.add("versteckt");
+
+            console.warn(
+                `Bild für Frage ${aktuelleFrage.id} konnte nicht geladen werden.`
+            );
+
+        });
+
+        bildContainer.appendChild(bild);
+        bildContainer.classList.remove("versteckt");
+
+    } catch (fehler) {
+
+        console.warn(
+            `Ungültiger Bildpfad bei Frage ${aktuelleFrage.id}:`,
+            fehler
+        );
+
+    }
+}
 
 const mehrfach =
     aktuelleFrage.loesung.size > 1;
@@ -959,6 +1099,204 @@ function zeigeDatensicherung() {
     leseSicherungsSpeicher();
 }
 
+
+/* ============================================================
+   EIGENEN FRAGENKATALOG IMPORTIEREN
+============================================================ */
+
+function initialisiereKatalogImport() {
+
+    const dateiInput =
+        document.getElementById("katalogDatei");
+
+    const uebernehmenButton =
+        document.getElementById("katalogUebernehmenButton");
+
+    const vorschau =
+        document.getElementById("katalogVorschau");
+
+    const status =
+        document.getElementById("katalogStatus");
+
+    if (
+        !dateiInput ||
+        !uebernehmenButton ||
+        !vorschau ||
+        !status
+    ) {
+        return;
+    }
+
+    // Datei auswählen und zunächst nur prüfen.
+    dateiInput.addEventListener("change", async () => {
+
+        vorgemerkterKatalog = null;
+        uebernehmenButton.disabled = true;
+        vorschau.classList.add("versteckt");
+
+        const datei = dateiInput.files[0];
+
+        if (!datei) return;
+
+        try {
+
+            if (!datei.name.toLowerCase().endsWith(".xml")) {
+                throw new Error(
+                    "Bitte eine XML-Datei auswählen."
+                );
+            }
+
+            if (datei.size > 5 * 1024 * 1024) {
+                throw new Error(
+                    "Die XML-Datei darf maximal 5 MB groß sein."
+                );
+            }
+
+            const xmlText = await datei.text();
+
+            // XML zunächst vollständig prüfen.
+            const geladeneFragen =
+                parseFragenXML(xmlText);
+
+            // Sicherstellen, dass keine Fragen übersprungen wurden.
+            const xml =
+                new DOMParser().parseFromString(
+                    xmlText,
+                    "application/xml"
+                );
+
+            const anzahlXML =
+                xml.querySelectorAll("frage").length;
+
+            if (geladeneFragen.length !== anzahlXML) {
+                throw new Error(
+                    "Nicht alle Fragen konnten korrekt eingelesen werden."
+                );
+            }
+
+            // Doppelte IDs verhindern.
+            const ids = geladeneFragen.map(frage => frage.id);
+
+            if (new Set(ids).size !== ids.length) {
+                throw new Error(
+                    "Der Fragenkatalog enthält doppelte Frage-IDs."
+                );
+            }
+
+            vorgemerkterKatalog = {
+                xmlText,
+                fragen: geladeneFragen,
+                dateiname: datei.name
+            };
+
+            vorschau.textContent =
+                `Datei: ${datei.name} – ` +
+                `${geladeneFragen.length} Fragen erkannt.`;
+
+            vorschau.classList.remove("versteckt");
+
+            uebernehmenButton.disabled = false;
+
+            status.textContent =
+                "XML-Datei erfolgreich geprüft. " +
+                "Bitte bestätige die Übernahme.";
+
+        } catch (fehler) {
+
+            vorgemerkterKatalog = null;
+
+            status.textContent =
+                "Fehler: " + fehler.message;
+
+        }
+
+    });
+
+
+    // Erst nach ausdrücklicher Bestätigung übernehmen.
+    uebernehmenButton.addEventListener("click", async () => {
+
+        if (!vorgemerkterKatalog) return;
+
+        const bestaetigt = confirm(
+            "Möchtest du den eigenen Fragenkatalog wirklich übernehmen?\n\n" +
+            "Der bisherige Fragenkatalog wird ersetzt.\n" +
+            "Der gespeicherte Lernfortschritt bleibt erhalten, " +
+            "soweit Frage-ID und Rubrik übereinstimmen.\n\n" +
+            "Der eigene Katalog wird lokal gespeichert und bei " +
+            "der nächsten Service-Worker-Aktualisierung entfernt."
+        );
+
+        if (!bestaetigt) return;
+
+        uebernehmenButton.disabled = true;
+
+        try {
+
+            if (!("caches" in window)) {
+                throw new Error(
+                    "Der lokale Cache wird von diesem Browser nicht unterstützt."
+                );
+            }
+
+            const cache =
+                await caches.open(USER_KATALOG_CACHE);
+
+            await cache.put(
+                USER_KATALOG_DATEI,
+                new Response(
+                    vorgemerkterKatalog.xmlText,
+                    {
+                        headers: {
+                            "Content-Type": "application/xml;charset=utf-8"
+                        }
+                    }
+                )
+            );
+
+            // Neuen Katalog aktivieren.
+            fragen = vorgemerkterKatalog.fragen;
+
+            // Bisherige Lernwerte anhand ID und Rubrik zuordnen.
+            ladeLernerfolg();
+
+            // Neuen Fragenpool erstellen.
+            erstelleFragenpool();
+
+            eigenerKatalogAktiv = true;
+
+            status.textContent =
+                `Eigener Fragenkatalog "${vorgemerkterKatalog.dateiname}" ` +
+                `mit ${fragen.length} Fragen wurde übernommen.`;
+
+            // Auswahl zurücksetzen.
+            vorgemerkterKatalog = null;
+            dateiInput.value = "";
+            vorschau.classList.add("versteckt");
+
+            // Zur ersten Frage des neuen Katalogs wechseln.
+            document.getElementById("datensicherung")
+                .classList.add("versteckt");
+
+            document.getElementById("quizbereich")
+                .classList.remove("versteckt");
+
+            zeigeNaechsteFrage();
+
+        } catch (fehler) {
+
+            status.textContent =
+                "Der Fragenkatalog konnte nicht gespeichert werden: " +
+                fehler.message;
+
+            uebernehmenButton.disabled = false;
+
+        }
+
+    });
+
+}
+
 /* ============================================================
    EVENTS – NUR AUF DER HAUPTSEITE
 ============================================================ */
@@ -998,6 +1336,8 @@ if (document.getElementById("quizbereich")) {
         .addEventListener("click", zuruecksetzen);
 }
 
+initialisiereKatalogImport();
+
 /* ============================================================
    SCHNITTSTELLE FÜR WAHRSCHEINLICHKEITEN.HTML
 ============================================================ */
@@ -1031,6 +1371,18 @@ async function starteApp() {
     try {
 
         fragen = await ladeFragen();
+
+        const katalogStatus =
+            document.getElementById("katalogStatus");
+
+        if (katalogStatus) {
+
+            katalogStatus.textContent =
+                eigenerKatalogAktiv
+                    ? "Ein eigener Fragenkatalog wird lokal verwendet."
+                    : "Der Standardfragenkatalog wird verwendet.";
+
+        }
 
         ladeLernerfolg();
 
