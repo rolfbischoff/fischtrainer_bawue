@@ -1,0 +1,28 @@
+MIT License – Program Code Only
+
+Copyright (c) 2026 Rolf Bischoff
+
+Scope
+
+This license applies exclusively to original program code created for the Fischtrainer Baden-Württemberg project.
+
+Covered files include the project's own HTML, CSS, JavaScript and technical configuration files, to the extent that these contain original work of the project author.
+
+This license does NOT apply to:
+
+fragenkatalog.xml
+Examination questions, answer choices and solutions derived from the official examination question catalogue
+Third-party illustrations, photographs or other media
+Third-party materials or content included in the repository
+
+These excluded materials are subject to their respective rights and licensing conditions. No rights to such materials are granted by this license.
+
+License Terms
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of the covered software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the covered Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+For further information about excluded third-party content, see CONTENT-RIGHTS.md.
