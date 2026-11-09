@@ -347,4 +347,21 @@ Der Originalfragenkatalog kann direkt beim Herausgeber eingesehen und herunterge
 
 Landesfischereiverband Baden-Württemberg – Fragenkatalog zur staatlichen Fischerprüfung (URL https://lfvbw.de/angelfischerei-fragenkatalog-zur-fischerpruefung/)
 
+## Wichtiger Hinweis zur Lizenzierung:
+
+Der Programmcode dieses Projekts steht unter der MIT License. Diese Lizenz gilt ausschließlich für die selbst erstellten Programmteile.
+
+Der enthaltene Fragenkatalog (fragenkatalog.xml) basiert auf dem offiziellen Fragenkatalog des Landesfischereiverbands Baden-Württemberg e. V. und ist ausdrücklich von der MIT-Lizenz ausgenommen.
+
+Die Übertragung der Prüfungsfragen in das XML-Format stellt keine eigene Lizenzierung der übernommenen Inhalte dar.
+
+Für Prüfungsfragen, Antwortmöglichkeiten, Lösungen und gegebenenfalls bestehende Datenbankrechte gelten die Rechte der jeweiligen Rechteinhaber.
+
+Eine Weiterverwendung des Fragenkatalogs durch Dritte wird durch dieses Projekt nicht freigegeben.
+
+Gleiches gilt für gegebenenfalls enthaltene fremde Bilder, Illustrationen und sonstige Medien.
+
+Weitere Informationen enthält die Datei CONTENT-RIGHTS.md.
+
+Die MIT-Lizenz für den eigenen Programmcode befindet sich in LICENSE-CODE.
 ## Viel Erfolg bei der Vorbereitung auf die Fischerprüfung! 🎣
